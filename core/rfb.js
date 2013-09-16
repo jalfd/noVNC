@@ -54,6 +54,7 @@ export default class RFB extends EventTargetMixin {
         this._repeaterID = options.repeaterID || '';
         this._showDotCursor = options.showDotCursor || false;
         this._wsProtocols = options.wsProtocols || [];
+        this._customEncodings = options.customEncodings || [];
 
         // Internal state
         this._rfb_connection_state = '';
@@ -1209,7 +1210,7 @@ export default class RFB extends EventTargetMixin {
     }
 
     _sendEncodings() {
-        const encs = [];
+        let encs = [];
 
         // In preference order
         encs.push(encodings.encodingCopyRect);
@@ -1237,6 +1238,8 @@ export default class RFB extends EventTargetMixin {
         if (this._fb_depth == 24) {
             encs.push(encodings.pseudoEncodingCursor);
         }
+
+        encs = encs.concat(this._customEncodings.map(enc => enc.key));
 
         RFB.messages.clientEncodings(this._sock, encs);
     }
@@ -1422,6 +1425,15 @@ export default class RFB extends EventTargetMixin {
                 return this._handle_xvp_msg();
 
             default:
+                const custom = this._customEncodings[msg_type];
+                for (let i in this._customEncodings) {
+                    const enc = this._customEncodings[i];
+                    if (enc.key === msg_type) {
+                        if (typeof enc.handler === 'function') {
+                            return enc.handler();
+                        }
+                    }
+                }
                 this._fail("Unexpected server message (type " + msg_type + ")");
                 Log.Debug("sock.rQslice(0, 30): " + this._sock.rQslice(0, 30));
                 return true;

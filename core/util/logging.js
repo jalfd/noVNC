@@ -17,30 +17,40 @@ let Info = () => {};
 let Warn = () => {};
 let Error = () => {};
 
-export function init_logging(level) {
-    if (typeof level === 'undefined') {
-        level = _log_level;
-    } else {
-        _log_level = level;
+export function init_logging(param) {
+    Debug = Info = Warn = Error = () => {};
+    let has_custom_logger = false;
+    switch (typeof param) {
+        case 'string':
+            _log_level = param;
+            break;
+        case 'object':
+            let has_custom_logger = true;
+            if ('level' in param) {
+                _log_level = param.level;
+            }
+            if ('debug' in param) { Debug = param.debug; }
+            if ('info' in param) { Info = param.info; }
+            if ('warn' in param) { Warn = param.warn; }
+            if ('error' in param) { Error = param.error; }
+            break;
     }
 
-    Debug = Info = Warn = Error = () => {};
-
-    if (typeof window.console !== "undefined") {
+    if (!has_custom_logger && typeof window.console !== "undefined") {
         /* eslint-disable no-console, no-fallthrough */
-        switch (level) {
+        switch (_log_level) {
             case 'debug':
-                Debug = console.debug.bind(window.console);
+                Debug = function(msg) {evlog.debug(6, msg);};
             case 'info':
-                Info  = console.info.bind(window.console);
+                Info  = function(msg) {evlog.info(msg);};
             case 'warn':
-                Warn  = console.warn.bind(window.console);
+                Warn  = function(msg) {evlog.warning(msg);};
             case 'error':
-                Error = console.error.bind(window.console);
+                Error = function(msg) {evlog.error(msg);};
             case 'none':
                 break;
             default:
-                throw new window.Error("invalid logging type '" + level + "'");
+                throw new window.Error("invalid logging type '" + _log_level + "'");
         }
         /* eslint-enable no-console, no-fallthrough */
     }

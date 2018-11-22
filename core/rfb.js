@@ -811,6 +811,7 @@ export default class RFB extends EventTargetMixin {
             case "004.000":  // Intel AMT KVM
             case "004.001":  // RealVNC 4.6
             case "005.000":  // RealVNC 5.3
+            case "003.011": // MI evncserver
                 this._rfb_version = 3.8;
                 break;
             default:

@@ -55,6 +55,7 @@ export default class RFB extends EventTargetMixin {
         this._showDotCursor = options.showDotCursor || false;
         this._wsProtocols = options.wsProtocols || [];
         this._customEncodings = options.customEncodings || [];
+        this._scaleFactor = options.scaleFactor || 1;
 
         // Internal state
         this._rfb_connection_state = '';
@@ -506,7 +507,7 @@ export default class RFB extends EventTargetMixin {
 
     _updateScale() {
         if (!this._scaleViewport) {
-            this._display.scale = 1.0;
+            this._display.scale = this._scaleFactor;
         } else {
             const size = this._screenSize();
             this._display.autoscale(size.w, size.h);

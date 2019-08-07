@@ -27,7 +27,6 @@ export default class Websock {
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
         this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
-        this._rQmax = this._rQbufferSize / 8;
         // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
         this._rQ = null; // Receive queue
 
@@ -247,7 +246,6 @@ export default class Websock {
 
         if (resizeNeeded) {
             const old_rQbuffer = this._rQ.buffer;
-            this._rQmax = this._rQbufferSize / 8;
             this._rQ = new Uint8Array(this._rQbufferSize);
             this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
         } else {
@@ -280,8 +278,6 @@ export default class Websock {
             if (this._rQlen == this._rQi) {
                 this._rQlen = 0;
                 this._rQi = 0;
-            } else if (this._rQlen > this._rQmax) {
-                this._expand_compact_rQ();
             }
         } else {
             Log.Debug("Ignoring empty message");

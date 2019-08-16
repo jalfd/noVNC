@@ -14,6 +14,7 @@ import * as browser from "../util/browser.js";
 // Keyboard event handler
 //
 
+    let depth = 0;
 export default class Keyboard {
     constructor(target) {
         this._target = target || null;
@@ -301,8 +302,14 @@ export default class Keyboard {
 
     // Firefox Alt workaround, see below
     _checkAlt(e) {
+        if (e.skipCheckAlt) {
+            return;
+        }
         if (e.altKey) {
             return;
+        }
+        if (depth++ > 3) {
+            console.log("oops, this is bad");
         }
 
         const target = this._target;
@@ -314,9 +321,11 @@ export default class Keyboard {
 
             const event = new KeyboardEvent('keyup',
                                             { key: downList[code],
-                                              code: code });
+                                              code: code});
+            event.skipCheckAlt = true;
             target.dispatchEvent(event);
         });
+        --depth;
     }
 
     // ===== PUBLIC METHODS =====

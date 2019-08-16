@@ -632,7 +632,7 @@ export default class RFB extends EventTargetMixin {
                 break;
 
             case 'connected':
-                this.dispatchEvent(new CustomEvent("connect", { detail: {} }));
+                this.dispatchEvent(new CustomEvent("connect", { detail: { socket: this._sock} }));
                 break;
 
             case 'disconnecting':
